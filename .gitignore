@@ -1,0 +1,14 @@
+# Base de datos con datos personales: nunca al repo (entregable 1 del Paso 4)
+lab.db
+*.db
+*.sqlite3
+
+# Credenciales / secretos
+.env
+*.key
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/

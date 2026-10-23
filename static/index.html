@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab 11 · Registro</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; background: #f6f7f9; color: #1d2330; }
+    h1 { font-size: 1.4rem; }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; background: #fff; padding: 1.2rem; border-radius: 10px; box-shadow: 0 1px 3px #0002; }
+    label { display: flex; flex-direction: column; font-size: .85rem; gap: .25rem; }
+    input { padding: .5rem; border: 1px solid #c8ccd4; border-radius: 6px; font-size: .95rem; }
+    button { grid-column: span 2; padding: .6rem; border: 0; border-radius: 6px; background: #2b59c3; color: #fff; font-size: 1rem; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; font-size: .85rem; }
+    th, td { border: 1px solid #dde1e7; padding: .4rem .5rem; text-align: left; }
+    th { background: #eef1f6; }
+    #msg { margin: .6rem 0; min-height: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Registro de usuarios (Lab 11)</h1>
+  <form id="f">
+    <label>Nombres <input name="nombres" required></label>
+    <label>Apellidos <input name="apellidos" required></label>
+    <label>Correo <input name="correo" type="email" required></label>
+    <label>Teléfono <input name="telefono"></label>
+    <button>Registrarme</button>
+  </form>
+  <p id="msg"></p>
+
+  <h2>GET /registros</h2>
+  <table>
+    <thead><tr><th>id</th><th>nombres</th><th>apellidos</th><th>correo</th><th>teléfono</th><th>creado_en</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <script>
+    const f = document.getElementById("f");
+    const msg = document.getElementById("msg");
+
+    async function cargar() {
+      const data = await (await fetch("/registros")).json();
+      const rows = document.getElementById("rows");
+      rows.innerHTML = "";
+      for (const r of data) {
+        const tr = document.createElement("tr");
+        for (const k of ["id", "nombres", "apellidos", "correo", "telefono", "creado_en"]) {
+          const td = document.createElement("td");
+          td.textContent = r[k] ?? "";
+          tr.appendChild(td);
+        }
+        rows.appendChild(tr);
+      }
+    }
+
+    f.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const body = Object.fromEntries(new FormData(f));
+      const res = await fetch("/registro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      msg.textContent = res.ok ? "Registrado." : "Error al registrar.";
+      if (res.ok) { f.reset(); cargar(); }
+    });
+
+    cargar();
+  </script>
+</body>
+</html>
